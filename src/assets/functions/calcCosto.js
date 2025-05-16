@@ -5,17 +5,15 @@ const calcCosto = (array) => {
         const precio = parseFloat(array[index].precioUnitario);
         const cantidad = parseFloat(array[index].cantidad);
         const nombre = array[index].producto;
-        console.log("precio ", precio, "cantidad ", cantidad,"nombre ", nombre);
 
         if (isNaN(precio) || isNaN(cantidad)) {
             console.error(`Invalid data at index ${index}:`, array[index]);
-            
         }
         else if (precio < 0 || cantidad < 0) {
             console.error(`Negative value at index ${index}:`, array[index]);
         }else {
             total.push({nombre: nombre, total: precio * cantidad});
-            console.log("total ", precio * cantidad);
+          
         }
 
     }
