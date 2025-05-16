@@ -237,7 +237,7 @@ function App() {
     />
   </div>
 
-  <div className="mt-6 text-center">
+  <div className="mt-6 text-center flex flex-col items-center justify-center">
     <button
   onClick={cantidadProducto}
   className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition hover:bg-sky-600 pl-2 cursor-pointer h-8"
