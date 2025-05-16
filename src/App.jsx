@@ -6,14 +6,7 @@ import ListaDesplegable from "./components/ListaDesplegable/ListaDesplegable";
 
 function App() {
   // const [numeroPulverizaciones, setNumeroPulverizaciones] = useState(()=> localStorage.getItem('numeroPulverizaciones') || '')
-  const [unidadDosisProducto, setunidadDosisProducto] = useState(() => {
-    const saved = localStorage.getItem("unidadDosisProducto");
-    try {
-      return saved ? JSON.parse(saved) : ["Litros", "cc", "Kg"];
-    } catch {
-      return ["Litros", "cc", "Kg"];
-    }
-  });
+  const [unidadDosisProducto, setunidadDosisProducto] = useState(["Litros", "cc", "Kg"])
   const [unidadSeleccionada, setUnidadSeleccionada] = useState(
     () => localStorage.getItem("unidadSeleccionada") || ""
   );
@@ -27,6 +20,8 @@ function App() {
   const [dosisProducto, setdosisProducto] = useState(
     () => localStorage.getItem("dosisProducto") || ""
   );
+  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+
   const [cantidad, setCantidad] = useState(null);
   const [arrayProductos, setArrayProductos] = useState([
     {
@@ -174,29 +169,41 @@ function App() {
   useEffect(() => {
     //localStorage.setItem('numeroPulverizaciones', numeroPulverizaciones)
     localStorage.setItem("productoSeleccionado", productoSeleccionado);
-    localStorage.setItem(
-      "unidadDosisProducto",
-      JSON.stringify(unidadDosisProducto)
-    );
     localStorage.setItem("unidadSeleccionada", unidadSeleccionada);
     localStorage.setItem("dosisProducto", dosisProducto);
     localStorage.setItem("volumenProducto", volumenProducto);
+    localStorage.setItem("productosSeleccionados", JSON.stringify(productosSeleccionados))
   }, [
-    ,
     /*numeroPulverizaciones*/ productoSeleccionado,
     unidadSeleccionada,
-    unidadDosisProducto,
     volumenProducto,
+    productosSeleccionados 
   ]);
-
+  useEffect(() => {
+  const guardados = localStorage.getItem("productosSeleccionados");
+  if (guardados) {
+    setProductosSeleccionados(JSON.parse(guardados));
+  }
+}, []);
   const cantidadProducto = () => {
-    const dosis = parseFloat(dosisProducto);
-    const volumen = parseFloat(volumenProducto);
-    if (!isNaN(dosis) && !isNaN(volumen)) {
-      setCantidad(dosis * volumen);
-    } else {
-      setCantidad(0);
-    }
+  const dosis = parseFloat(dosisProducto);
+  const volumen = parseFloat(volumenProducto);
+  if (!isNaN(dosis) && !isNaN(volumen)) {
+    const resultado = dosis * volumen;
+    setCantidad(resultado);
+
+    const nuevoProducto = {
+      producto: productoSeleccionado,
+      dosis,
+      volumen,
+      unidad: unidadSeleccionada,
+      cantidad: resultado,
+    };
+
+    setProductosSeleccionados((prev) => [...prev, nuevoProducto]);
+  } else {
+    setCantidad(0);
+  }
   };
   return (
   <div className="flex flex-col items-center justify-center gap-6 p-8 bg-white rounded-xl shadow-md w-full max-w-8xl mx-auto">
