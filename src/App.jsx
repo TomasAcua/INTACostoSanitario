@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import Costo from './components/Costo/Costo'
+import Dolar from './components/Dolar/Dolar'
 import './App.css'
 
 function App() {
@@ -133,11 +134,13 @@ function App() {
     "costoTotal": 32300
   }
 ]
-
+  const [refresh, setRefresh] = useState(0)
 
   return (
     <>
-      <Costo productos={productos}/>
+      <Dolar/>
+       <button onClick={() => setRefresh(r => r + 1)}>Actualizar</button>
+      <Costo key={refresh} productos={productos}/>
     </>
   )
 }

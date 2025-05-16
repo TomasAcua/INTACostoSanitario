@@ -1,4 +1,4 @@
-const calcCosto = (array) => {
+export const calcCosto = (array) => {
     let total = [];
 
     for (let index = 0; index < array.length; index++) {
