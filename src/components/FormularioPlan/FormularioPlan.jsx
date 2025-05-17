@@ -3,17 +3,29 @@ import { FaArrowRight } from "react-icons/fa";
 import Input from "../Input/Input"
 import ListaDesplegable from "../ListaDesplegable/ListaDesplegable";
 
-const FormularioProducto =({formId, agregarProducto}) =>{
+const FormularioPlan =({formId}) =>{
+
      // const [numeroPulverizaciones, setNumeroPulverizaciones] = useState(()=> localStorage.getItem('numeroPulverizaciones') || '')
+
+     //Estados para los input
   const [unidadDosisProducto, setunidadDosisProducto] = useState(["Litros", "cc", "Kg"])
   const [unidadSeleccionada, setUnidadSeleccionada] = useState('');
   const [volumenProducto, setVolumenProducto] = useState('');
   const [precio, setPrecio] = useState('');
-
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [dosisProducto, setdosisProducto] = useState('');
-
   const [cantidad, setCantidad] = useState(null);
+
+// Estado para los mensajes
+const [mensaje, setMensaje] = useState("");
+
+
+  // Lista de productos agregados a este plan
+const [productosSeleccionados, setProductosSeleccionados] = useState(() => {
+  const data = localStorage.getItem("productosPorFormulario");
+  const parsed = data ? JSON.parse(data) : {};
+  return parsed[formId] || [];
+});
   const [arrayProductos, setArrayProductos] = useState([
     {
       id: 1,
@@ -157,15 +169,24 @@ const FormularioProducto =({formId, agregarProducto}) =>{
     },
   ]);
 
-  
-  const cantidadProducto = () => {
+// guardar el array de productos en el localStorage
+useEffect(() => {
+  const guardados = localStorage.getItem("productosPorFormulario");
+  const productosPorFormulario = guardados ? JSON.parse(guardados) : {};
+  productosPorFormulario[formId] = productosSeleccionados;
+  localStorage.setItem("productosPorFormulario", JSON.stringify(productosPorFormulario));
+}, [productosSeleccionados, formId]);
+
+
+// Agregar productos al plan
+  const agregarProducto = () => {
   const dosis = parseFloat(dosisProducto);
   const volumen = parseFloat(volumenProducto);
-  if (!isNaN(dosis) && !isNaN(volumen)) {
+  if (!isNaN(dosis) && !isNaN(volumen) && productoSeleccionado && unidadSeleccionada) {
     const resultado = dosis * volumen;
-    setCantidad(resultado);
 
     const nuevoProducto = {
+      id: productosSeleccionados.length + 1,
       producto: productoSeleccionado,
       dosis,
       volumen,
@@ -174,15 +195,31 @@ const FormularioProducto =({formId, agregarProducto}) =>{
       id: formId,
       precioUnitario: precio,
     };
+    
 
-   agregarProducto(nuevoProducto);
+    setProductosSeleccionados((prev) => [...prev, nuevoProducto]);
+    
+    setMensaje("Producto agregado");
+
+    setdosisProducto("");
+    setVolumenProducto("");
+    setProductoSeleccionado("");
+    setUnidadSeleccionada("");
+    setCantidad(null);
+    setTimeout(() => setMensaje(""), 2000);
   } else {
-    setCantidad(0);
+    setMensaje("Por favor complete todos los campos correctamente");
+    setTimeout(() => setMensaje(""), 2000);
   }
-  };
+};
+useEffect(() => {
+  const total = productosSeleccionados.reduce((acc, p) => acc + p.cantidad, 0);
+  setCantidad(total);
+}, [productosSeleccionados]);
+
   return (
   <div className="flex flex-col items-center justify-center gap-6 p-8 bg-white rounded-xl shadow-md w-full max-w-8xl mx-auto">
-
+    <h2 className="text-center">Plan </h2>
   <div className="flex flex-col lg:flex-row flex-wrap items-center justify-center gap-6 w-full">
     <Input
       text={"Dosis"}
@@ -225,25 +262,43 @@ const FormularioProducto =({formId, agregarProducto}) =>{
 
   <div className="mt-6 text-center flex flex-col items-center justify-center">
     <button
-  onClick={cantidadProducto}
-  className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition hover:bg-sky-600 pl-2 cursor-pointer h-8"
+  onClick={agregarProducto}
+  className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg transition hover:bg-sky-600 pl-2 cursor-pointer h-8"
 >
-  <div className="flex items-center">  Calcular</div>
+  <div className="flex items-center">  Agregar</div>
 
   <span className="bg-sky-600 p-1 rounded flex items-center">
     <FaArrowRight className="text-white" />
   </span>
 </button>
+  {mensaje && (
+    <p className="mt-4 text-green-600 font-semibold">{mensaje}</p>
+  )}
+  
+  </div>
+  <div>
+    <h3 className="font-bold">
+        Productos agregados al plan:
+    </h3>
+    <ul>
+        {
+            productosSeleccionados.map(p=>(
+                <li key={p.id}>
+                    {p.producto} - Cantidad : {p.cantidad} {p.unidad}
+                </li>
+            ))
+        }
+    </ul>
+  </div>
 
     {cantidad !== null && (
       <p className="mt-4 text-lg font-semibold text-gray-700">
-        Cantidad: {cantidad} {unidadSeleccionada}/ha
-      </p>
+  Cantidad total: {cantidad} unidades/ha
+</p>
     )}
-  </div>
 </div>
 
   );
 
 }
-export default FormularioProducto
+export default FormularioPlan
