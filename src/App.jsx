@@ -2,6 +2,10 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import FormularioProducto from "./components/FormularioProducto/FormularioProducto";
+import Costo from "./components/Costo/Costo";
+import Dolar from "./components/Dolar/Dolar";
+
+
 function App() {
   const [formularios, setFormularios] = useState([0]);
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
@@ -29,6 +33,14 @@ const agregarProducto = (nuevoProducto) => {
 }, []);
   return (
     <div className="flex flex-col items-center justify-center gap-6 p-8 bg-white rounded-xl shadow-md w-full max-w-8xl mx-auto">
+
+      <div className="">
+
+        <Dolar />
+        <button onClick={() => setRefresh((r) => r + 1)}>Actualizar</button>
+        <Costo key={refresh} productos={arrayProductos} />
+      </div>
+
       <h1 className="text-2xl font-bold text-center text-green-800 mb-4">
         Visualizador de costos sanitarios
       </h1>
