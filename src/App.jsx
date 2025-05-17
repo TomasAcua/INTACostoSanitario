@@ -1,12 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import Costo from './components/Costo/Costo'
 import Dolar from './components/Dolar/Dolar'
+import { useEffect, useState } from "react";
+import { FaArrowRight } from "react-icons/fa";
+import Input from "./components/Input/Input";
+import ListaDesplegable from "./components/ListaDesplegable/ListaDesplegable";
 import './App.css'
 
 function App() {
-  const productos = [
+   // const [numeroPulverizaciones, setNumeroPulverizaciones] = useState(()=> localStorage.getItem('numeroPulverizaciones') || '')
+  const [unidadDosisProducto, setunidadDosisProducto] = useState(["Litros", "cc", "Kg"])
+  const [unidadSeleccionada, setUnidadSeleccionada] = useState(
+    () => localStorage.getItem("unidadSeleccionada") || ""
+  );
+  const [volumenProducto, setVolumenProducto] = useState(
+    () => localStorage.getItem("volumenProducto") || ""
+  );
+
+  const [productoSeleccionado, setProductoSeleccionado] = useState(
+    () => localStorage.getItem("productoSeleccionado") || ""
+  );
+  const [dosisProducto, setdosisProducto] = useState(
+    () => localStorage.getItem("dosisProducto") || ""
+  );
+  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+
+  const [cantidad, setCantidad] = useState(null);
+  const [arrayProductos, setArrayProductos] = useState([
   {
     "producto": "Aceite de Verano",
     "unidad": "Litros",
@@ -133,16 +153,122 @@ function App() {
     "precioUnitario": 32300,
     "costoTotal": 32300
   }
-]
+])
   const [refresh, setRefresh] = useState(0)
 
+  useEffect(() => {
+    //localStorage.setItem('numeroPulverizaciones', numeroPulverizaciones)
+    localStorage.setItem("productoSeleccionado", productoSeleccionado);
+    localStorage.setItem("unidadSeleccionada", unidadSeleccionada);
+    localStorage.setItem("dosisProducto", dosisProducto);
+    localStorage.setItem("volumenProducto", volumenProducto);
+    localStorage.setItem("productosSeleccionados", JSON.stringify(productosSeleccionados))
+  }, [
+    /*numeroPulverizaciones*/ productoSeleccionado,
+    unidadSeleccionada,
+    volumenProducto,
+    productosSeleccionados 
+  ]);
+  useEffect(() => {
+  const guardados = localStorage.getItem("productosSeleccionados");
+  if (guardados) {
+    setProductosSeleccionados(JSON.parse(guardados));
+  }
+}, []);
+  const cantidadProducto = () => {
+  const dosis = parseFloat(dosisProducto);
+  const volumen = parseFloat(volumenProducto);
+  if (!isNaN(dosis) && !isNaN(volumen)) {
+    const resultado = dosis * volumen;
+    setCantidad(resultado);
+
+    const nuevoProducto = {
+      producto: productoSeleccionado,
+      dosis,
+      volumen,
+      unidad: unidadSeleccionada,
+      cantidad: resultado,
+    };
+
+    setProductosSeleccionados((prev) => [...prev, nuevoProducto]);
+  } else {
+    setCantidad(0);
+  }
+  };
   return (
     <>
       <Dolar/>
        <button onClick={() => setRefresh(r => r + 1)}>Actualizar</button>
       <Costo key={refresh} productos={productos}/>
+
+
+
+      {/* Parte Flor*/}
+      <div className="">
+
+    <div className="flex flex-col items-center justify-center gap-6 p-8 bg-white rounded-xl shadow-md w-full max-w-8xl mx-auto">
+  <h1 className="text-2xl font-bold text-center text-green-800 mb-4">
+    Visualizador de costos sanitarios
+  </h1>
+
+  <div className="flex flex-col md:flex-row flex-wrap items-center justify-center gap-6 w-full">
+    <Input
+      text={"Dosis"}
+      type={"number"}
+      value={dosisProducto}
+      onChange={(e) => setdosisProducto(e.target.value)}
+      placeholder={"Ingrese una dosis en números"}
+    />
+    <Input
+      text={"Volumen (hl/ha)"}
+      type={"number"}
+      value={volumenProducto}
+      onChange={(e) => setVolumenProducto(e.target.value)}
+      placeholder={"Ingrese un volumen en hl/ha"}
+    />
+    <ListaDesplegable
+      text={"Producto:"}
+      name={"arrayProductos"}
+      id={"arrayProductos"}
+      array={arrayProductos}
+      value={productoSeleccionado}
+      onChange={(e) => setProductoSeleccionado(e.target.value)}
+    />
+    <ListaDesplegable
+      text={"Unidad de dosis"}
+      name={"unidadDosisProducto"}
+      id={"unidadDosisProducto"}
+      array={unidadDosisProducto}
+      value={unidadSeleccionada}
+      onChange={(e) => setUnidadSeleccionada(e.target.value)}
+    />
+  </div>
+
+  <div className="mt-6 text-center flex flex-col items-center justify-center">
+    <button
+  onClick={cantidadProducto}
+  className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition hover:bg-sky-600 pl-2 cursor-pointer h-8"
+>
+  <div className="flex items-center">  Calcular</div>
+
+  <span className="bg-sky-600 p-1 rounded flex items-center">
+    <FaArrowRight className="text-white" />
+  </span>
+</button>
+
+    {cantidad !== null && (
+      <p className="mt-4 text-lg font-semibold text-gray-700">
+        Cantidad: {cantidad} {unidadSeleccionada}/ha
+      </p>
+    )}
+  </div>
+</div>
+
+
+
+      </div>
     </>
   )
 }
 
-export default App
+export default App;
