@@ -8,6 +8,7 @@ const FormularioProducto =({formId, agregarProducto}) =>{
   const [unidadDosisProducto, setunidadDosisProducto] = useState(["Litros", "cc", "Kg"])
   const [unidadSeleccionada, setUnidadSeleccionada] = useState('');
   const [volumenProducto, setVolumenProducto] = useState('');
+  const [precio, setPrecio] = useState('');
 
   const [productoSeleccionado, setProductoSeleccionado] = useState('');
   const [dosisProducto, setdosisProducto] = useState('');
@@ -171,6 +172,7 @@ const FormularioProducto =({formId, agregarProducto}) =>{
       unidad: unidadSeleccionada,
       cantidad: resultado,
       id: formId,
+      precioUnitario: precio,
     };
 
    agregarProducto(nuevoProducto);
@@ -195,6 +197,13 @@ const FormularioProducto =({formId, agregarProducto}) =>{
       value={volumenProducto}
       onChange={(e) => setVolumenProducto(e.target.value)}
       placeholder={"Ingrese un volumen en hl/ha"}
+    />
+    <Input
+      text={"Precio"}
+      type={"number"}
+      value={precio}
+      onChange={(e) => setPrecio(e.target.value)}
+      placeholder={"Ingrese un valor en dolares"}
     />
     <ListaDesplegable
       text={"Producto:"}

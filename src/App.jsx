@@ -4,11 +4,13 @@ import { FaPlus } from "react-icons/fa";
 import FormularioProducto from "./components/FormularioProducto/FormularioProducto";
 import Costo from "./components/Costo/Costo";
 import Dolar from "./components/Dolar/Dolar";
+import AgregarPlan from "./components/AgregarPlan/AgregarPlan";
 
 
 function App() {
   const [formularios, setFormularios] = useState([0]);
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+   const [refresh, setRefresh] = useState(0)
 
   const agregarFormulario = () => {
     setFormularios((prev) => [...prev, prev.length]);
@@ -38,7 +40,7 @@ const agregarProducto = (nuevoProducto) => {
 
         <Dolar />
         <button onClick={() => setRefresh((r) => r + 1)}>Actualizar</button>
-        <Costo key={refresh} productos={arrayProductos} />
+        <Costo key={refresh} productos={productosSeleccionados} />
       </div>
 
       <h1 className="text-2xl font-bold text-center text-green-800 mb-4">
@@ -56,6 +58,10 @@ const agregarProducto = (nuevoProducto) => {
         <FaPlus />
         Agregar producto a comparar
       </button>
+
+      <div className="">
+        <AgregarPlan/>
+      </div>
        {/* Para visualizar qué se seleccionó y debuggear*/}
       <pre>{JSON.stringify(productosSeleccionados, null, 2)}</pre>
     </div>
