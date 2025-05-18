@@ -1,8 +1,7 @@
-
 import fetchDolar from "../../services/fetchDolar";
 import { useEffect, useState } from "react";
 
-const Dolar = () => {
+const Dolar = ({setRefreshDolar, handleRefresh}) => {
   const [dolar, setDolar] = useState(null);
   const [estado, setEstado] = useState("Cambiar");
   const [value, setValue] = useState("");
@@ -27,16 +26,20 @@ const Dolar = () => {
     }
   };
 
-  const cambiarEstado = () => {
+  const cambiarEstado = async () => {
     if (estado === "Cambiar") {
       setEstado("Restaurar");
       setDolar(value);
       localStorage.setItem("dolar", value);
       setValue("");
+      handleRefresh()
+      //setRefreshDolar((r) => r + 1);
     }
     if (estado === "Restaurar") {
       setEstado("Cambiar");
-      fetchData();
+      await fetchData();
+      handleRefresh()
+      //setRefreshDolar((r) => r + 1);
     }
   };
 
@@ -64,23 +67,25 @@ const Dolar = () => {
             onChange={(e) => setValue(e.target.value)}
           />
         </div>
-       <div className="hover:bg-green-900 ">
-  {estado === "Restaurar" ? (
-    <button
-      className="hover:cursor-pointer w-full"
-      onClick={cambiarEstado}
-    >
-      Restaurar
-    </button>
-  ) : value !== "" ? (
-    <button
-      className="hover:cursor-pointer w-full"
-      onClick={cambiarEstado}
-    >
-      Cambiar
-    </button>
-  ) : null}
-</div>
+        <div className="hover:bg-green-900 ">
+          {estado === "Restaurar" ? (
+            <button
+              className="hover:cursor-pointer w-full"
+              onClick={cambiarEstado}
+            >
+              Restaurar
+            </button>
+          ) : value !== "" ? (
+            <button
+              className="hover:cursor-pointer w-full"
+              onClick={cambiarEstado}
+            >
+              Cambiar
+            </button>
+          ) : null}
+
+               
+        </div>
       </div>
     </div>
   );

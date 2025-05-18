@@ -1,35 +1,123 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
+import { useEffect, useState } from 'react';
+import Graphic from './components/Graphic/Graphic';
+import FormularioPlan from './components/FormularioPlan/FormularioPlan';
+import Button from './components/Button/Button';
+import PlansList from './components/PlansList/PlansList';
+import { FaArrowRight, FaPlus } from 'react-icons/fa';
+import { PDFViewer } from '@react-pdf/renderer';
+import PDFDocument from './components/PDF/PDFDocument';
+import './App.css';
+import Dolar from './components/Dolar/Dolar';
 function App() {
-  const [count, setCount] = useState(0)
+  const [chartImage, setChartImage] = useState(null);
+  const [mostrarPDF, setMostrarPDF] = useState(false);
+  const [plans, setPlans] = useState(() => {
+    const storedPlans = localStorage.getItem('productosPorFormulario');
+    return storedPlans
+      ? JSON.parse(storedPlans)
+      : [{ name: "Plan 1", productos: [], costoTotal: 0 }];
+  });
 
+  //
+  const [refreshDolar, setRefreshDolar] = useState(0);
+
+
+  useEffect(() => {
+    localStorage.setItem('productosPorFormulario', JSON.stringify(plans));
+  }, [plans]);
+
+
+  const agregarFormulario = () => {
+    setPlans((prev) => [
+      ...prev,
+      { name: `Plan ${prev.length + 1}`, productos: [], costoTotal: 0 }
+    ]);
+  };
+
+
+const handleRefresh = ()=>{
+ setRefreshDolar((r) => r +1)
+ }
+ 
+  const generarPDF = () => {
+    setMostrarPDF(true);
+  };
+
+  const eliminarFormulario = (id) => {
+    setPlans((prev) => prev.filter((_, index) => index !== id))
+    const guardados = localStorage.getItem('productosPorFormulario') || {};
+    delete guardados[id]
+    localStorage.setItem('productosPorFormulario', JSON.stringify(guardados));
+  }
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen w-full px-6 py-6 bg-gray-50">
+      <h1 className="text-3xl font-bold text-center text-green-800 mb-6">
+        Visualizador de Costos Sanitarios
+      </h1>
+      <Dolar setRefreshDolar={handleRefresh} />
+      {/* <button 
+        className="bg-blue-500 hover:bg-blue-900 hover:curso-pointer" 
+        onClick={() => setRefreshDolar((r) => r + 1)}>Actualizar precios</button> */}
+
+      <div className="flex flex-col items-center gap-y-6">
+        {/* Botón de agregar formulario */}
+        <Button
+          onClick={agregarFormulario}
+          className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition hover:bg-sky-600 pl-2 cursor-pointer h-8 text-center"
+        >
+          <span>Agregar Nuevo Plan</span>
+          <span className="bg-sky-600 p-1 rounded">
+            <FaPlus className="text-white" />
+          </span>
+        </Button>
+
+        {/* Lista de formularios */}
+        <div className="w-full max-w-4xl space-y-4">
+          {plans.map((plan, index) => (
+            <div key={index} className="border p-4 rounded shadow-sm bg-white">
+              <FormularioPlan
+                formId={index}
+                plans={plans}
+                setPlans={setPlans}
+                onEliminar={() => eliminarFormulario(index)}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Planes ingresados y gráfico */}
+        <div className="w-full max-w-4xl p-6 rounded-lg shadow bg-white">
+          <h2 className="text-xl font-semibold mb-4">Planes Ingresados</h2>
+          <PlansList plans={plans} refreshDolar={refreshDolar} />
+          {plans.length > 1 && (
+            <div className="mt-6">
+              <Graphic plans={plans} setChartImage={setChartImage} />
+            </div>
+          )}
+        </div>
+
+        {/* Botón de generar PDF */}
+        <Button
+          onClick={generarPDF}
+          className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition hover:bg-sky-600 pl-2 cursor-pointer h-8 text-center"
+        >
+          <span>Generar PDF</span>
+          <span className="bg-sky-600 p-1 rounded">
+            <FaArrowRight className="text-white" />
+          </span>
+        </Button>
+
+        {/* PDF Viewer */}
+        {mostrarPDF && (
+          <div className="w-full flex justify-center mt-8">
+            <PDFViewer width="80%" height="600">
+              <PDFDocument chartImage={chartImage} plansToRender={plans} />
+            </PDFViewer>
+          </div>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
