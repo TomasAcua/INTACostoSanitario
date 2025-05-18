@@ -1,7 +1,8 @@
 import Product from '../Product/Product';
+import Button from '../Button/Button';
 
 const ProductsList = ({ products }) => {
-    
+
     return (
         <section className="w-full mx-auto mt-4 bg-white shadow-md rounded-lg overflow-hidden">
             <div className="grid grid-cols-6 gap-4 font-semibold text-sm text-gray-700 bg-gray-100 px-4 py-3 border-b">
@@ -14,7 +15,9 @@ const ProductsList = ({ products }) => {
             </div>
             <div className="divide-y">
                 {products.map((prod, idx) => (
-                    <Product key={idx} object={prod} />
+                    <div>
+                        <Product key={idx} object={prod} />
+                    </div>
                 ))}
             </div>
         </section>

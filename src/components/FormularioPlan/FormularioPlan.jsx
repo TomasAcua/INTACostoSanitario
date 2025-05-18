@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import Input from "../Input/Input";
 import ListaDesplegable from "../ListaDesplegable/ListaDesplegable";
-import ProductsList from "../ProductsList/ProductsList";
-import Cost from "../Cost/Cost";
+import Button from "../Button/Button";
 
-const FormularioPlan = ({ formId }) => {
+const FormularioPlan = ({ formId, plans, setPlans, onEliminar }) => {
   const [form, setForm] = useState({
     unidad: "",
     volumen: "",
@@ -34,15 +33,11 @@ const FormularioPlan = ({ formId }) => {
     { id: 14, producto: "Trampas", unidad: "unidad", dosis: null, volumen: null, cantidad: 1, precioUnitario: 32300, costoTotal: 32300 },
   ];
 
-  const [productos, setProductos] = useState(() => {
-    const data = JSON.parse(localStorage.getItem("productosPorFormulario") || "{}");
-    
-    return data[formId]?.['productos'] || [];
-  });
+  const [productos, setProductos] = useState(() => plans[formId]?.productos || []);
 
   useEffect(() => {
     const guardados = JSON.parse(localStorage.getItem("productosPorFormulario") || "{}");
-    guardados[formId] = {name: `Plan ${formId + 1}`, productos, costoTotal};
+    guardados[formId] = { name: `Plan ${formId + 1}`, productos, costoTotal };
     localStorage.setItem("productosPorFormulario", JSON.stringify(guardados));
   }, [productos, formId, costoTotal]);
 
@@ -55,33 +50,47 @@ const FormularioPlan = ({ formId }) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const agregarProducto = () => {
-    const { producto, unidad, dosis, volumen, precio } = form;
-    const dosisNum = parseFloat(dosis);
-    const volumenNum = parseFloat(volumen);
-    const precioNum = parseFloat(precio);
+const agregarProducto = () => {
+  const { producto, unidad, dosis, volumen, precio } = form;
+  const dosisNum = parseFloat(dosis);
+  const volumenNum = parseFloat(volumen);
+  const precioNum = parseFloat(precio);
 
-    if (!producto || !unidad || isNaN(dosisNum) || isNaN(volumenNum) || isNaN(precioNum)) {
-      mostrarMensaje("Por favor complete todos los campos correctamente");
-      return;
-    }
+  if (!producto || !unidad || isNaN(dosisNum) || isNaN(volumenNum) || isNaN(precioNum)) {
+    mostrarMensaje("Por favor complete todos los campos correctamente");
+    return;
+  }
 
-    const cantidad = dosisNum * volumenNum;
+  const cantidad = dosisNum * volumenNum;
 
-    const nuevo = {
-      id: productos.length + 1,
-      producto,
-      unidad,
-      dosis: dosisNum,
-      volumen: volumenNum,
-      cantidad,
-      precioUnitario: precioNum,
+  const nuevo = {
+    id: productos.length + 1,
+    producto,
+    unidad,
+    dosis: dosisNum,
+    volumen: volumenNum,
+    cantidad,
+    precioUnitario: precioNum,
+  };
+
+  const productosActualizados = [...productos, nuevo];
+  setProductos(productosActualizados);
+  setPlans(prev => {
+    const nuevosPlanes = [...prev];
+    const costoTotal = productosActualizados.reduce((acc, p) => acc + p.cantidad * p.precioUnitario, 0);
+
+    nuevosPlanes[formId] = {
+      name: `Plan ${formId + 1}`,
+      productos: productosActualizados,
+      costoTotal,
     };
 
-    setProductos((prev) => [...prev, nuevo]);
-    setForm({ unidad: "", volumen: "", precio: "", producto: "", dosis: "" });
-    mostrarMensaje("Producto agregado");
-  };
+    return nuevosPlanes;
+  });
+  setForm({ unidad: "", volumen: "", precio: "", producto: "", dosis: "" });
+  mostrarMensaje("Producto agregado");
+};
+
 
   const mostrarMensaje = (msg) => {
     setMensaje(msg);
@@ -89,43 +98,78 @@ const FormularioPlan = ({ formId }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 p-8 bg-white rounded-xl shadow-md w-full max-w-8xl mx-auto">
-      <h2 className="text-center">Plan</h2>
+    <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl mx-auto space-y-8 px-5">
+      <h2 className="text-3xl font-bold text-center text-gray-800">Formulario de Plan {formId + 1} </h2>
 
-      <div className="flex flex-col lg:flex-row flex-wrap items-center justify-center gap-6 w-full">
-        <Input text="Dosis" type="number" value={form.dosis} onChange={(e) => actualizarForm("dosis", e.target.value)} placeholder="Ingrese una dosis en números" />
-        <Input text="Volumen (hl/ha)" type="number" value={form.volumen} onChange={(e) => actualizarForm("volumen", e.target.value)} placeholder="Ingrese un volumen" />
-        <Input text="Precio" type="number" value={form.precio} onChange={(e) => actualizarForm("precio", e.target.value)} placeholder="Ingrese un precio" />
-        <ListaDesplegable text="Producto:" name="producto" id="producto" array={productosDisponibles} value={form.producto} onChange={(e) => actualizarForm("producto", e.target.value)} />
-        <ListaDesplegable text="Unidad de dosis" name="unidad" id="unidad" array={unidades} value={form.unidad} onChange={(e) => actualizarForm("unidad", e.target.value)} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Input
+          text="Dosis"
+          type="number"
+          value={form.dosis}
+          onChange={(e) => actualizarForm("dosis", e.target.value)}
+          placeholder="Ingrese una dosis"
+        />
+        <Input
+          text="Volumen (hl/ha)"
+          type="number"
+          value={form.volumen}
+          onChange={(e) => actualizarForm("volumen", e.target.value)}
+          placeholder="Ingrese un volumen"
+        />
+        <Input
+          text="Precio"
+          type="number"
+          value={form.precio}
+          onChange={(e) => actualizarForm("precio", e.target.value)}
+          placeholder="Ingrese un precio"
+        />
+        <ListaDesplegable
+          text="Producto"
+          name="producto"
+          id="producto"
+          array={productosDisponibles}
+          value={form.producto}
+          onChange={(e) => actualizarForm("producto", e.target.value)}
+        />
+        <ListaDesplegable
+          text="Unidad de dosis"
+          name="unidad"
+          id="unidad"
+          array={unidades}
+          value={form.unidad}
+          onChange={(e) => actualizarForm("unidad", e.target.value)}
+        />
       </div>
 
-      <div className="mt-6 text-center flex flex-col items-center justify-center">
+      <div className="grid grid-cols-2 w-100 gap-8">
+        <Button 
+        className={'flex items-center gap-x-2 bg-red-700 hover:bg-red-600 text-white font-medium rounded-xl px-5 py-2 shadow  transition cursor-pointer'}
+        onClick={onEliminar}
+        >
+            <span>Eliminar Formulario</span>
+            
+        </Button>
         <button
           onClick={agregarProducto}
-          className="flex items-center gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-sky-600 pl-2 cursor-pointer h-8"
+          className="flex items-center gap-x-2 bg-sky-700 text-white font-medium rounded-xl px-5 py-2 shadow hover:bg-sky-600 transition cursor-pointer"
         >
-          <span>Agregar</span>
-          <span className="bg-sky-600 p-1 rounded">
-            <FaArrowRight className="text-white" />
-          </span>
+          <span>Agregar producto</span>
+          <FaArrowRight />
         </button>
-        {mensaje && <p className="mt-4 text-green-600 font-semibold">{mensaje}</p>}
       </div>
 
-      <div>
-        <h3 className="font-bold">Productos agregados al plan:</h3>
-        <ProductsList products={productos} />
-        <Cost products={productos} setCostoTotal={setCostoTotal}/>
-      </div>
+      {mensaje && (
+        <p className="text-center text-green-600 font-semibold">{mensaje}</p>
+      )}
 
       {cantidadTotal !== null && (
-        <p className="mt-4 text-lg font-semibold text-gray-700">
+        <p className="mt-6 text-center text-lg font-semibold text-gray-700">
           Cantidad total: {cantidadTotal} unidades/ha
         </p>
       )}
     </div>
   );
+
 };
 
 export default FormularioPlan;

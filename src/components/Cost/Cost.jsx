@@ -2,61 +2,38 @@ import { useEffect, useState } from "react";
 import calcCost from "../../assets/functions/calcCost";
 import fetchDolar from "../../services/fetchDolar";
 
-const Cost = ({ products, setCostoTotal }) => {
+const Cost = ({ products, setCostoTotal, refreshDolar }) => {
   let value = calcCost(products);
-  const dolar = localStorage.getItem("dolar");
+  const [dolar, setDolar] = useState(() => Number(localStorage.getItem("dolar")) || 0);
   const [total, setTotal] = useState(0);
   const [argValue, setArgValue] = useState(0);
-  const [refresh, setRefresh] = useState(0);
+  // const [refresh, setRefresh] = useState(0);
 
+  //Actualiza el valor del dolar
   useEffect(() => {
-    const fetchDolarValue = async () => {
-      const dolarValue = await fetchDolar();
-      localStorage.setItem("dolar", dolarValue.venta);
-    };
+    const localDolar = Number(localStorage.getItem("dolar")) || 0;
+    setDolar(localDolar);
+    console.log("dolarActualizado", localDolar);
+    console.log("refreshDolar", refreshDolar);
+  }, [refreshDolar]);
 
-    if (!dolar) {
-      fetchDolarValue();
-    }
-  },[])
-
+  //Obtiene el costo total de los productos
   useEffect(() => {
-    const totalUSD = value.reduce((acc, item) => acc + item.total, 0)
+    const totalUSD = value.reduce((acc, item) => acc + item.total, 0);
     setTotal(totalUSD);
-    setArgValue(total * dolar);
     setCostoTotal(totalUSD);
-  }, [dolar, value, refresh]);
+  }, [value, setCostoTotal]);
+
+  //Obtiene el valor en pesos argentinos
+  useEffect(() => {
+    setArgValue(total * dolar);
+    console.log("dolarEnPesos", dolar);
+  }, [total, dolar]);
 
   return (
     <div className="bg-darkPrimary text-white py-2">
-      <h2 className="">Costo Total</h2>
-      <div className="bg-slate-900 h-[0.2vh] w-full my-1"></div>
 
-    {/* Esto es de prueba, eliminar luego */}
-      <div className="">
-        {/* {total ? (
-          <div className="">
-            {value.map((item, index) => {
-              return (
-                <div
-                  key={index}
-                  className="flex justify-between items-center py-2 px-4 border-b border-slate-700"
-                >
-                  <h3 className="text-slate-400">{item.nombre}</h3>
-                  <h3 className="text-slate-400">
-                    USD $
-                    {Math.round(item.total).toLocaleString("es-AR", {
-                      maximumFractionDigits: 2,
-                    })}
-                  </h3>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <h3 className="text-slate-400">Cargando...</h3>
-        )} */}
-
+      <div>
         {argValue ? (
           <h3 className="text-slate-900">
             USD $
@@ -70,9 +47,6 @@ const Cost = ({ products, setCostoTotal }) => {
           <h3 className="text-slate-400">Cargando...</h3>
         )}
         
-        <button 
-        className="bg-blue-500 hover:bg-blue-900 hover:curso-pointer" 
-        onClick={() => setRefresh((r) => r + 1)}>Actualizar</button>
       </div>
     </div>
   );

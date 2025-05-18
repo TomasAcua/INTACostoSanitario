@@ -25,6 +25,13 @@ const styles = StyleSheet.create({
     borderBottom: '1 solid #dee2e6',
     paddingBottom: 5,
   },
+  planTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 5,
+    color: '#212529',
+  },
   imageContainer: {
     alignItems: 'center',
     marginBottom: 20,
@@ -39,7 +46,7 @@ const styles = StyleSheet.create({
   table: {
     display: 'table',
     width: 'auto',
-    marginTop: 10,
+    marginTop: 5,
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#ced4da',
@@ -52,19 +59,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   tableCell: {
-    padding: 8,
+    padding: 6,
     borderRight: '1 solid #ced4da',
     borderBottom: '1 solid #ced4da',
-    width: '50%',
     textAlign: 'center',
+    width: '20%'
   },
 });
 
-const PDFDocument = ({ chartImage, products = [] }) => {
+const PDFDocument = ({ chartImage, plansToRender }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <Text style={styles.header}>Reporte de Productos</Text>
+
         {chartImage && (
           <>
             <Text style={styles.sectionTitle}>Gráfico de Costos</Text>
@@ -74,22 +82,42 @@ const PDFDocument = ({ chartImage, products = [] }) => {
           </>
         )}
 
-        {products.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Listado de Productos</Text>
-            <View style={styles.table}>
-              <View style={[styles.tableRow, styles.tableHeader]}>
-                <Text style={styles.tableCell}>Nombre</Text>
-                <Text style={styles.tableCell}>Costo</Text>
-              </View>
-              {products.map((p, i) => (
-                <View style={styles.tableRow} key={i}>
-                  <Text style={styles.tableCell}>{p.name}</Text>
-                  <Text style={styles.tableCell}>${p.cost}</Text>
+        <Text style={styles.sectionTitle}>Planes y Productos</Text>
+
+        {plansToRender.length > 0 ? (
+          plansToRender.map((plan, idx) => (
+            <View key={idx} wrap={false}>
+              <Text style={styles.planTitle}>
+                {plan.name} - Total: ${plan.costoTotal.toLocaleString()}
+              </Text>
+              {plan.productos.length > 0 ? (
+                <View style={styles.table}>
+                  <View style={[styles.tableRow, styles.tableHeader]}>
+                    <Text style={styles.tableCell}>Producto</Text>
+                    <Text style={styles.tableCell}>Dosis</Text>
+                    <Text style={styles.tableCell}>Volumen</Text>
+                    <Text style={styles.tableCell}>Cantidad</Text>
+                    <Text style={styles.tableCell}>Precio Unitario</Text>
+                  </View>
+                  {plan.productos.map((prod, i) => (
+                    <View style={styles.tableRow} key={i}>
+                      <Text style={styles.tableCell}>{prod.producto}</Text>
+                      <Text style={styles.tableCell}>{prod.dosis}</Text>
+                      <Text style={styles.tableCell}>{prod.volumen}</Text>
+                      <Text style={styles.tableCell}>{prod.cantidad}</Text>
+                      <Text style={styles.tableCell}>${prod.precioUnitario}</Text>
+                    </View>
+                  ))}
                 </View>
-              ))}
+              ) : (
+                <Text style={{ fontStyle: 'italic', color: '#6c757d' }}>
+                  No hay productos en este plan.
+                </Text>
+              )}
             </View>
-          </>
+          ))
+        ) : (
+          <Text>No hay planes para mostrar.</Text>
         )}
       </Page>
     </Document>
