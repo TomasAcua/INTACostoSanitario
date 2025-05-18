@@ -1,75 +1,85 @@
 import { useEffect, useState } from 'react';
 import Graphic from './components/Graphic/Graphic';
-import Form from './components/Form/Form';
+import FormularioPlan from './components/FormularioPlan/FormularioPlan';
 import Button from './components/Button/Button'
-import Product from './components/Product/Product';
+import ProductsList from './components/ProductsList/ProductsList';
+import { FaArrowRight, FaPlus } from 'react-icons/fa';
+import { PDFViewer } from '@react-pdf/renderer';
+import PDFDocument from './components/PDF/PDFDocument';
 import './App.css';
 
 function App() {
-  const [products, setProducts] = useState([])
+  const [chartImage, setChartImage] = useState(null)
+  const [plans, setPlans] = useState([]);
+  const [mostrarPDF, setMostrarPDF] = useState(false);
+
 
   useEffect(() => {
-    const storedProducts = localStorage.getItem('storedProducts')
-    if (storedProducts) {
-      try {
-        setProducts(JSON.parse(storedProducts))
-      } catch (e) {
-        console.error("Error al parsear localStorage", e)
-        setProducts([])
-      }
-    }
-  }, [])
+    const planesObj = JSON.parse(localStorage.getItem('productosPorFormulario')) || {};
+    // console.log("planesObj:", planesObj);
+    const planesArray = Object.values(planesObj);
+    console.log("planesArray:", planesArray);
+    setPlans(planesArray);
+}, []);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      localStorage.setItem('storedProducts', JSON.stringify(products))
-    } else {
-      localStorage.removeItem('storedProducts')
-    }
-  }, [products])
 
-  const addProductToTheList = (newProduct) => {
-    setProducts(prev => [...prev, newProduct])
-  }
+  const agregarFormulario = () => {
+    setPlans((prev) => [...prev, prev.length]);
+  };
 
-  const deleteProductList = () => {
-    setProducts([])
-  }
-
+  const generarPDF = () => {
+    setMostrarPDF(true);
+  };
   return (
     <div className='h-full w-full px-6'>
-      <div className='grid grid-cols-2 gap-8'>
+      <div className='grid grid-cols-1 gap-8'>
         <div className='col-span-1'>
-          <Form onSubmit={addProductToTheList} ></Form>
-          <div className='shadow-md w-full my-3 py-5'>
-            {products.length > 0 ? (
-              <div className='flex flex-col items-center gap-5'>
-                {products.map((product, index) => {
-                  console.log(product)
-                  return (
-                    <Product
-                      object={product}
-                      key={index}
-                    />
-                  )
-                })}
-              </div>
-            ) : (
-              <div>
-                No hay productos
-              </div>
-            )}
-          </div>
+          <h1 className="text-2xl font-bold text-center text-green-800 mb-4">
+            Visualizador de costos sanitarios
+          </h1>
+
+          {plans.map((plan, index) => (
+            <div>
+              <FormularioPlan formId={index} />
+            </div>
+          ))}
+          <Button
+            onClick={agregarFormulario}
+            className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition hover:bg-sky-600 pl-2 cursor-pointer h-8"
+          >
+            <div className="flex items-center">Agregar Formulario</div>
+            <span className="bg-sky-600 p-1 rounded flex items-center">
+              <FaPlus className="text-white" />
+            </span>
+          </Button>
         </div>
         <div className='col-span-1 box-shadow rounded-[15px] shadow-md px-5'>
-          <Graphic products={products}> </Graphic>
-          <Button
-            onClick={deleteProductList}
-            className='border-2 p-2 px-5 rounded-[18px] hover:bg-black hover:text-white cursor-pointer'
-          >Borrar Todo</Button>
+          {plans.length > 0 && (
+
+            <div>
+          
+              <Graphic plans={plans} setChartImage={setChartImage}> </Graphic>
+            </div>
+
+          )}
         </div>
       </div>
-
+      <Button
+        onClick={generarPDF}
+        className="flex items-strech justify-between gap-x-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition hover:bg-sky-600 pl-2 cursor-pointer h-8"
+      >
+        <div className="flex items-center">Generar PDF</div>
+        <span className="bg-sky-600 p-1 rounded flex items-center">
+          <FaArrowRight className="text-white" />
+        </span>
+      </Button>
+      {mostrarPDF && (
+        <div className='w-full h-[600px] mt-8'>
+          <PDFViewer width="80%" height="100%">
+            <PDFDocument chartImage={chartImage} />
+          </PDFViewer>
+        </div>
+      )}
     </div>
   )
 }

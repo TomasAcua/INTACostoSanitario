@@ -1,11 +1,14 @@
-const Product = ({ object, key }) => {
-    console.log("Products from Product Component:", object)
+const Product = ({ object }) => {
     return (
-        <article className="rounded border w-[80%] py-3" key={key}>
-            <h2><span>Nombre:</span> {object.name} </h2>
-            <h2><span>Costo:</span> <span className="text-green-600">${object.cost}</span> </h2>
-        </article>
+        <div className="grid grid-cols-6 gap-4 px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 transition-colors">
+            <span>{object.producto}</span>
+            <span>{object.dosis}</span>
+            <span>{object.volumen}</span>
+            <span>{object.unidad}</span>
+            <span>{object.cantidad}</span>
+            <span className="text-green-600 font-medium">${object.precioUnitario}</span>
+        </div>
     );
-}
+};
 
 export default Product;
