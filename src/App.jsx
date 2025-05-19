@@ -18,9 +18,6 @@ function App() {
       : [{ name: "Plan 1", productos: [], costoTotal: 0 }];
   });
 
-  //
-  const [refreshDolar, setRefreshDolar] = useState(0);
-
 
   useEffect(() => {
     localStorage.setItem('productosPorFormulario', JSON.stringify(plans));
@@ -35,9 +32,13 @@ function App() {
   };
 
 
-const handleRefresh = ()=>{
- setRefreshDolar((r) => r +1)
- }
+// Estado para manejar el valor del dólar
+  const [currentDolarValue, setCurrentDolarValue] = useState(localStorage.getItem('dolarOficial') || 0);
+
+  // Actualiza el valor del dólar en el estado
+  const updateDolarValue = (newValue) => {
+    setCurrentDolarValue(newValue);
+  }
  
   const generarPDF = () => {
     setMostrarPDF(true);
@@ -54,10 +55,10 @@ const handleRefresh = ()=>{
       <h1 className="text-3xl font-bold text-center text-green-800 mb-6">
         Visualizador de Costos Sanitarios
       </h1>
-      <Dolar setRefreshDolar={handleRefresh} />
-      {/* <button 
-        className="bg-blue-500 hover:bg-blue-900 hover:curso-pointer" 
-        onClick={() => setRefreshDolar((r) => r + 1)}>Actualizar precios</button> */}
+      <Dolar 
+        className="flex justify-center items-center w-full"
+        onDolarChange={valor => setCurrentDolarValue(valor)} 
+      />
 
       <div className="flex flex-col items-center gap-y-6">
         {/* Botón de agregar formulario */}
@@ -88,7 +89,7 @@ const handleRefresh = ()=>{
         {/* Planes ingresados y gráfico */}
         <div className="w-full max-w-4xl p-6 rounded-lg shadow bg-white">
           <h2 className="text-xl font-semibold mb-4">Planes Ingresados</h2>
-          <PlansList plans={plans} refreshDolar={refreshDolar} />
+          <PlansList plans={plans} dolar={currentDolarValue} />
           {plans.length > 1 && (
             <div className="mt-6">
               <Graphic plans={plans} setChartImage={setChartImage} />

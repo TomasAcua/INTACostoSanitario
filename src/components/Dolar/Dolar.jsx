@@ -1,93 +1,111 @@
-import fetchDolar from "../../services/fetchDolar";
 import { useEffect, useState } from "react";
+import fetchDolar from "../../services/fetchDolar";
 
-const Dolar = ({setRefreshDolar, handleRefresh}) => {
-  const [dolar, setDolar] = useState(null);
+const Dolar = ({ onDolarChange }) => {
+  const [dolarOficial, setDolarOficial] = useState(null);
+  const [dolarActual, setDolarActual] = useState(null);
   const [estado, setEstado] = useState("Cambiar");
   const [value, setValue] = useState("");
+  const [cantDolar, setCantDolar] = useState(1);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchDolar();
+        setDolarOficial(data.venta);
+        setDolarActual(data.venta);
+        localStorage.setItem("dolar", data.venta);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
     fetchData();
-
     setEstado("Cambiar");
   }, []);
 
   useEffect(() => {
-    // console.log ( value)
-  }, [value]);
+    if (onDolarChange) onDolarChange(dolarActual);
+  }, [dolarActual, onDolarChange]);
 
-  const fetchData = async () => {
-    try {
-      const data = await fetchDolar();
-      setDolar(data.venta);
-      localStorage.setItem("dolar", data.venta);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const cambiarEstado = async () => {
-    if (estado === "Cambiar") {
+  const cambiarEstado = () => {
+    if (estado === "Cambiar" && value !== "") {
       setEstado("Restaurar");
-      setDolar(value);
+      setDolarActual(Number(value));
       localStorage.setItem("dolar", value);
-      setValue("");
-      handleRefresh()
-      //setRefreshDolar((r) => r + 1);
-    }
-    if (estado === "Restaurar") {
+    } else if (estado === "Restaurar") {
       setEstado("Cambiar");
-      await fetchData();
-      handleRefresh()
-      //setRefreshDolar((r) => r + 1);
+      setDolarActual(dolarOficial);
+      setValue("");
+      localStorage.setItem("dolar", dolarOficial);
     }
   };
 
   return (
-    <div className="bg-green-600 text-white w-50">
-      <h2 className="">Dolar</h2>
-
+    <div className="bg-green-600 text-white w-[90vh] mx-auto mb-4">
+      <h2>Dólar</h2>
       <div className="bg-slate-900 h-[0.2vh] w-full my-1"></div>
-
-      <div className="">
-        <div className="">
-          {dolar ? (
-            <h3 className="">
-              USD $ 1 = ARS ${Math.round(dolar).toLocaleString("es-AR")}
-            </h3>
+      <div className="flex flex-row justify-center items-center gap-10">
+        <div>
+          {dolarOficial ? (
+            <>
+              <h3>
+                USD $ {cantDolar} = ARS{" "}
+                {dolarActual
+                  ? Math.round(dolarActual * cantDolar).toLocaleString("es-AR")
+                  : "-"}{" "}
+                <span className="text-xs">
+                  {estado === "Restaurar"
+                    ? "según el valor dado por el usuario"
+                    : "según el valor oficial del dólar"}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-200 mt-1">
+                Dólar oficial actual:{" "}
+                <b>${dolarOficial.toLocaleString("es-AR")}</b>
+              </p>
+            </>
           ) : (
             <h3 className="text-slate-400">Cargando...</h3>
           )}
         </div>
-
-        <div className=" bg-green-300 ">
+        <div className="bg-green-300 p-2 mt-2 rounded">
+          <label className="block text-black text-sm mb-1">
+            Ingrese dolares:
+          </label>
           <input
-            type="text"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
+            type="number"
+            min="1"
+            className="w-full text-black p-1 rounded"
+            value={cantDolar}
+            onChange={(e) => setCantDolar(e.target.value)}
           />
         </div>
-        <div className="hover:bg-green-900 ">
-          {estado === "Restaurar" ? (
-            <button
-              className="hover:cursor-pointer w-full"
-              onClick={cambiarEstado}
-            >
-              Restaurar
-            </button>
-          ) : value !== "" ? (
-            <button
-              className="hover:cursor-pointer w-full"
-              onClick={cambiarEstado}
-            >
-              Cambiar
-            </button>
-          ) : null}
 
-               
+        <div className="bg-green-300 p-2 mt-2 rounded">
+          <label className="block text-black text-sm mb-1">
+            Valor de dólar a usar (personalizado):
+          </label>
+          <input
+            type="number"
+            min="1"
+            className="w-full text-black p-1 rounded"
+            placeholder={dolarOficial ? dolarOficial : "Valor dólar"}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            disabled={estado === "Restaurar"}
+          />
+          <button
+            className="flex-1 bg-green-600 hover:bg-green-800 text-white transition duration-200 mt-2"
+            onClick={cambiarEstado}
+            disabled={estado === "Cambiar" && value === ""}
+          >
+            {estado}
+          </button>
         </div>
       </div>
+      <br />
     </div>
   );
 };
+
 export default Dolar;

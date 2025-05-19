@@ -56,8 +56,17 @@ const agregarProducto = () => {
   const volumenNum = parseFloat(volumen);
   const precioNum = parseFloat(precio);
 
-  if (!producto || !unidad || isNaN(dosisNum) || isNaN(volumenNum) || isNaN(precioNum)) {
-    mostrarMensaje("Por favor complete todos los campos correctamente");
+  if (
+    !producto ||
+    !unidad ||
+    isNaN(dosisNum) ||
+    isNaN(volumenNum) ||
+    isNaN(precioNum) ||
+    dosisNum < 0 ||
+    volumenNum < 0 ||
+    precioNum < 0
+  ) {
+    mostrarMensaje("Por favor complete todos los campos correctamente y sin valores negativos");
     return;
   }
 

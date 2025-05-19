@@ -2,7 +2,7 @@ import ProductsList from "../ProductsList/ProductsList";
 import Cost from "../Cost/Cost";
 import { useState } from "react";
 
-const PlansList = ({ plans }) => {
+const PlansList = ({ plans, dolar }) => {
     const [costoTotal, setCostoTotal] = useState(0);
 
 
@@ -22,7 +22,7 @@ const PlansList = ({ plans }) => {
                         <ProductsList products={plan.productos} />
                         <div className="mt-4 text-right">
                             <strong className="text-gray-700 text-lg">
-                                <Cost products={plan.productos} setCostoTotal={setCostoTotal} />
+                                <Cost products={plan.productos} setCostoTotal={setCostoTotal} dolar={dolar}/>
                             </strong>
                         </div>
                     </div>
