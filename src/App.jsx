@@ -64,8 +64,17 @@ function App() {
     return nuevosPlanes;
     
   });
-  console.log("Editando producto", { planIndex, productoIndex, nuevosValores });
 };
+const eliminarProducto = (planIndex, productoIndex) =>{
+  setPlans(prev => {
+    const nuevosPlanes = [...prev]
+    nuevosPlanes[planIndex]={
+      ...nuevosPlanes[planIndex],
+      productos: nuevosPlanes[planIndex].productos.filter((_,idx)=> idx!== productoIndex)
+    }
+    return nuevosPlanes
+  })
+}
 
   return (
     <div className="min-h-screen w-full px-6 py-6 bg-gray-50">
@@ -106,7 +115,7 @@ function App() {
         {/* Planes ingresados y gráfico */}
         <div className="w-full max-w-4xl p-6 rounded-lg shadow bg-white">
           <h2 className="text-xl font-semibold mb-4">Planes Ingresados</h2>
-          <PlansList plans={plans} dolar={currentDolarValue} editarProducto={editarProducto}/>
+          <PlansList plans={plans} dolar={currentDolarValue} editarProducto={editarProducto} eliminarProducto={eliminarProducto}/>
           {plans.length > 1 && (
             <div className="mt-6">
               <Graphic plans={plans} setChartImage={setChartImage} />

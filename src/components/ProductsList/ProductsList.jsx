@@ -1,7 +1,7 @@
 import Product from '../Product/Product';
 import Modal from '../Modal/Modal'; 
 import { useState } from 'react';
-const ProductsList = ({ products, onEdit }) => {
+const ProductsList = ({ products, onEdit, onEliminar}) => {
  const [modalOpen, setModalOpen] = useState(false);
      const [productoActual, setProductoActual] = useState(null);
      const [indexActual, setIndexActual] = useState(null);
@@ -35,7 +35,7 @@ const ProductsList = ({ products, onEdit }) => {
             <div className="divide-y">
                 {products.map((prod, idx) => (
                     <div key={prod.id}>
-                        <Product  object={prod} onClickEdit={() => abrirModal(prod, idx)} />
+                        <Product  object={prod} onClickEdit={() => abrirModal(prod, idx)} onEliminar={() => onEliminar(idx)}/>
                     </div>
                 ))}
             </div>
