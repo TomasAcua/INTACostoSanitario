@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ListaDesplegable from "../ListaDesplegable/ListaDesplegable";
 import Input from "../Input/Input";
+import Button from "../Button/Button";
 const Modal = ({ producto, onClose, onSave }) => {
       const [costoTotal, setCostoTotal] = useState(0);
   const [formData, setFormData] = useState({ ...producto });
@@ -43,9 +44,9 @@ useEffect(() => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-xl">
-        <h2 className="text-lg font-bold mb-4">Editar Producto</h2>
+        <h2 className="text-lg font-bold mb-4">Editar Producto {producto.producto}</h2>
 
-        <div className="space-y-3">
+        <div className="space-y-3 flex flex-col items-center gap-2 ">
           <Input
             text="Dosis"
             name="dosis"
@@ -80,18 +81,19 @@ useEffect(() => {
             onChange={handleChange}
           />
     
-            <button
-              onClick={onClose}
-              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Guardar
-            </button>
+            <div className="flex gap-5 justify-center mt-1">
+                 <Button 
+             className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+            onClick={onClose}
+            ><span>Cancelar</span></Button>
+            
+             <Button 
+             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            onClick={handleSubmit}>
+              <span>Guardar</span>
+            </Button>
+            </div>
+           
           </div>
         </div>
       </div>
