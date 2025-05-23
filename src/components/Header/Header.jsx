@@ -1,0 +1,36 @@
+import LogoHeader from '../../assets/Logos_Header.png';
+
+const navLinks = [
+    { label: 'HOME', href: '#' },
+    { label: 'QUIENES SOMOS', href: '#' },
+    { label: 'UNIDADES', href: '#' },
+    { label: 'MÓDULOS', href: '#' },
+    { label: 'ACCESO USUARIOS', href: '#' },
+];
+
+const Header = () => {
+    return (
+        <header className="bg-gradient-to-b from-white to-gray-200 shadow-sm sticky top-0 z-50 border-b border-gray-300">
+            <div className="flex items-center justify-between px-4 md:px-8 py-2">
+                
+                <div className="flex items-center space-x-4">
+                    <img src={LogoHeader} alt="Logo SIPAN" className="h-[60px] w-auto" />
+                </div>
+
+                <nav className="hidden md:flex space-x-6 text-sm font-semibold text-gray-700">
+                    {navLinks.map((link, index) => (
+                        <a
+                            key={index}
+                            href={link.href}
+                            className="hover:text-cyan-600 border-b-2 border-transparent hover:border-cyan-500 px-2 py-1"
+                        >
+                            {link.label}
+                        </a>
+                    ))}
+                </nav>
+            </div>
+        </header>
+    );
+};
+
+export default Header;

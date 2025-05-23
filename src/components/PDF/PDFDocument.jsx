@@ -104,7 +104,7 @@ const PDFDocument = ({ chartImage, plansToRender }) => {
                       <Text style={styles.tableCell}>{prod.producto}</Text>
                       <Text style={styles.tableCell}>{prod.dosis}</Text>
                       <Text style={styles.tableCell}>{prod.volumen}</Text>
-                      <Text style={styles.tableCell}>{prod.cantidad}</Text>
+                      <Text style={styles.tableCell}>{(prod.cantidad).toFixed(2)} {prod.unidad}</Text>
                       <Text style={styles.tableCell}>${prod.precioUnitario}</Text>
                     </View>
                   ))}

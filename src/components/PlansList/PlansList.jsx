@@ -2,7 +2,7 @@ import ProductsList from "../ProductsList/ProductsList";
 import Cost from "../Cost/Cost";
 import { useState } from "react";
 
-const PlansList = ({ plans, dolar, editarProducto, eliminarProducto  }) => {
+const PlansList = ({ plans, dolar, editarProducto, eliminarProducto }) => {
     const [costoTotal, setCostoTotal] = useState(0);
 
 
@@ -19,8 +19,8 @@ const PlansList = ({ plans, dolar, editarProducto, eliminarProducto  }) => {
                         <h3 className="text-xl font-bold text-gray-800 mb-4">
                             {plan.name}
                         </h3>
-                        <ProductsList products={plan.productos}  onEdit={(productoIndex, nuevosValoresx) =>
-    editarProducto(index, productoIndex, nuevosValoresx)} onEliminar={(productoIndex) => eliminarProducto(index, productoIndex)}/>
+                        <ProductsList products={plan.productos} onEdit={(productoIndex, nuevosValoresx) =>
+                            editarProducto(index, productoIndex, nuevosValoresx)} onEliminar={(productoIndex) => eliminarProducto(index, productoIndex)} />
                         <div className="mt-4 text-right">
                             <strong className="text-gray-700 text-lg">
                                 <Cost products={plan.productos} setCostoTotal={setCostoTotal} dolar={dolar} />
